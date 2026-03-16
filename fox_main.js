@@ -148,7 +148,7 @@ async function loadAndApplyCorretores() {
       if (waBtn && c.wa) {
         waBtn.onclick = (e) => {
           e.preventDefault();
-          window.open(`https://wa.me/${c.wa}?text=Olá ${c.nome}, vim pelo site da FOX Imóveis!`, '_blank');
+          window.open(`https://wa.me/${c.wa}?text=Olá ${c.nome}, vim pelo site da FOX Corretores!`, '_blank');
         };
       }
       const igBtn = card.querySelector('.biz-btn-ig');
