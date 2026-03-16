@@ -5,7 +5,7 @@
 
 /* ── CONFIGURAÇÃO ── */
 const SB_URL    = 'https://jhknkeewysbbnvreckcb.supabase.co';
-const SB_KEY    = 'sb_publishable_4cELlKbvvVy0VSPduh0QMA_pISM00a-';
+const SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impoa25rZWV3eXNiYm52cmVja2NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTM1NjEsImV4cCI6MjA4OTI2OTU2MX0.1Ht37h-xlWv-ZRcqvwwnzSoAQ862BYSh5KwIpQB9Usc';
 const CLD_NAME  = 'dtyrgv4ut';
 const CLD_PRESET = 'fox_unsigned';
 
