@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOX Imóveis | Seu Lar Ideal em Natal – RN</title>
+  <link rel="stylesheet" href="fox_imoveis.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════ -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span class="nav-logo-emoji">🦊</span>
+    <div class="nav-logo-text">
+      FOX
+      <span>Imóveis</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#listings">Imóveis</a></li>
+    <li><a href="#about">Sobre</a></li>
+    <li><a href="#contact">Contato</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="#" class="nav-admin" onclick="openAdminLogin(event)">⚙ Admin</a>
+    <a href="#" class="nav-cta" onclick="openWA(); return false;">💬 Falar Agora</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="hero" id="home">
+
+  <!-- BACKGROUND FOTOGRÁFICO — Mansões reais com família -->
+  <div class="hero-bg">
+    <!-- Foto principal: mansão moderna luxuosa -->
+    <img
+      id="hero-photo"
+      src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1800&q=85&fit=crop&crop=center"
+      alt="Mansão moderna"
+      style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;display:block;transition:opacity 1.5s ease;"
+    >
+    <!-- Foto 2: família em frente a casa -->
+    <img
+      id="hero-photo-2"
+      src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1800&q=85&fit=crop&crop=center"
+      alt="Casa com família"
+      style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 55%;display:block;opacity:0;transition:opacity 1.5s ease;"
+    >
+    <!-- Foto 3: mansão com jardim e piscina -->
+    <img
+      id="hero-photo-3"
+      src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1800&q=85&fit=crop&crop=center"
+      alt="Mansão com piscina"
+      style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 50%;display:block;opacity:0;transition:opacity 1.5s ease;"
+    >
+    <script>
+      // Slideshow de fotos reais de mansões
+      (function(){
+        var photos = ['hero-photo','hero-photo-2','hero-photo-3'];
+        var cur = 0;
+        setInterval(function(){
+          document.getElementById(photos[cur]).style.opacity = '0';
+          cur = (cur + 1) % photos.length;
+          document.getElementById(photos[cur]).style.opacity = '1';
+        }, 6000);
+      })();
+    </script>
+  </div>
+  <!-- overlay suave para legibilidade -->
+  <div class="hero-overlay"></div>
+  <!-- watermark FOX -->
+  <div class="hero-watermark">FOX</div>
+
+  <!-- ── CONTEÚDO HERO ESQUERDA ── -->
+  <div class="hero-left">
+    <div class="hero-tag">🦊 Corretores Especializados</div>
+    <h1>Encontre o seu<br><em>imóvel dos sonhos</em></h1>
+    <p class="hero-desc">A FOX Corretora de Imóveis conecta famílias e investidores ao imóvel certo. Compra, venda e locação com atendimento premium em toda a região metropolitana de Natal.</p>
+    <div class="hero-btns">
+      <a href="#listings" class="btn-primary">Ver Imóveis Disponíveis</a>
+      <a href="#" class="btn-outline" onclick="openWA(); return false;">Atendimento via WhatsApp</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-num">847+</div><div class="stat-label">Imóveis Vendidos</div></div>
+      <div><div class="stat-num">12</div><div class="stat-label">Anos no Mercado</div></div>
+      <div><div class="stat-num">98%</div><div class="stat-label">Satisfação</div></div>
+    </div>
+  </div>
+
+  <!-- ── DOIS CARTÕES 9:16 LADO A LADO ── -->
+  <div class="hero-right">
+    <div class="cards-duo">
+
+      <!-- Cartão 1 — Carlos Mendonça (fundo claro) -->
+      <div class="biz-card biz-card-1">
+        <div class="biz-shine"></div>
+        <div class="biz-card-header">
+          <div class="biz-logo-line">
+            <span class="biz-logo-emoji">🦊</span>
+            <span class="biz-logo-name">FOX Imóveis</span>
+          </div>
+          <div class="biz-card-sub">AGILIZAMOS TUDO PARA VOCÊ</div>
+        </div>
+        <div class="biz-avatar-wrap">
+          <div class="biz-avatar">RC</div>
+          <div>
+            <div class="biz-name">Ricardo Carvalho</div>
+            <div class="biz-role">Corretor de Imóveis</div>
+            <div class="biz-creci">CRECI-RN 7659</div>
+          </div>
+        </div>
+        <div class="biz-divider"></div>
+        <div class="biz-info">
+          <div class="biz-row"><span class="biz-icon">📱</span><span class="biz-txt">(84) 9 8728-9132</span></div>
+          <div class="biz-row"><span class="biz-icon">✉️</span><span class="biz-txt">ricardocarvalho@foximoveis.com.br</span></div>
+          <div class="biz-row"><span class="biz-icon">📍</span><span class="biz-txt">· Natal – RN ·</span></div>
+        </div>
+        <div class="biz-badges">
+          <span class="biz-badge">Residencial</span>
+          <span class="biz-badge">Comercial</span>
+          <span class="biz-badge">Litoral</span>
+          <span class="biz-badge">Lançamentos</span>
+          <span class="biz-badge">MCMV</span>
+          <span class="biz-badge">Financiamento</span>
+          
+        </div>
+        <div class="biz-actions">
+          <a href="#" class="biz-btn biz-btn-wa" onclick="openWA(); return false;">💬 WhatsApp</a>
+          <a href="#" class="biz-btn biz-btn-ig">📸 Insta</a>
+          <button class="biz-btn biz-btn-sh" onclick="shareCard()">🔗</button>
+        </div>
+      </div>
+
+      <!-- Cartão 2 — Juliana Pereira (fundo escuro premium) -->
+      <div class="biz-card biz-card-2">
+        <div class="biz-shine"></div>
+        <div class="biz-card-header">
+          <div class="biz-logo-line">
+            <span class="biz-logo-emoji">🦊</span>
+            <span class="biz-logo-name">FOX Imóveis</span>
+          </div>
+          <div class="biz-card-sub">AGILIZAMOS TUDO PARA VOCÊ</div>
+        </div>
+        <div class="biz-avatar-wrap">
+          <div class="biz-avatar">RA</div>
+          <div>
+            <div class="biz-name">Ricardo Alves</div>
+            <div class="biz-role">Corretora de Imóveis</div>
+            <div class="biz-creci">CRECI-RN 9028</div>
+          </div>
+        </div>
+        <div class="biz-divider"></div>
+        <div class="biz-info">
+          <div class="biz-row"><span class="biz-icon">📱</span><span class="biz-txt">(84)9 8729-0501</span></div>
+          <div class="biz-row"><span class="biz-icon">✉️</span><span class="biz-txt">ricardocarvalho@foximoveis.com.br</span></div>
+          <div class="biz-row"><span class="biz-icon">📍</span><span class="biz-txt">· Natal – RN ·</span></div>
+        </div>
+        <div class="biz-badges">
+          <span class="biz-badge">Residencial</span>
+          <span class="biz-badge">Comercial</span>
+          <span class="biz-badge">Litoral</span>
+          <span class="biz-badge">Lançamentos</span>
+          <span class="biz-badge">MCMV</span>
+          <span class="biz-badge">Financiamento</span>
+        </div>
+        <div class="biz-actions">
+          <a href="#" class="biz-btn biz-btn-wa" onclick="openWA(); return false;">💬 WhatsApp</a>
+          <a href="#" class="biz-btn biz-btn-ig">📸 Insta</a>
+          <button class="biz-btn biz-btn-sh" onclick="shareCard()">🔗</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     BUSCA
+══════════════════════════════════════════ -->
+<section class="search-section" id="search">
+  <div class="search-tabs">
+    <button class="tab active" onclick="setTab(this)">🏠 Comprar</button>
+    <button class="tab" onclick="setTab(this)">🔑 Alugar</button>
+    <button class="tab" onclick="setTab(this)">✨ Lançamentos</button>
+  </div>
+  <div class="search-bar">
+    <div class="filter-group">
+      <label>Cidade / Bairro</label>
+      <input type="text" placeholder="Ex: Natal, Ponta Negra...">
+    </div>
+    <div class="filter-group">
+      <label>Tipo de Imóvel</label>
+      <select>
+        <option>Todos os tipos</option>
+        <option>Casa</option><option>Apartamento</option><option>Cobertura</option>
+        <option>Terreno</option><option>Comercial</option><option>Chácara</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Faixa de Preço</label>
+      <select>
+        <option>Qualquer valor</option>
+        <option>Até R$ 200 mil</option><option>R$ 200–500 mil</option>
+        <option>R$ 500 mil – 1 mi</option><option>Acima de R$ 1 mi</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Quartos</label>
+      <select>
+        <option>Qualquer</option><option>1 quarto</option>
+        <option>2 quartos</option><option>3 quartos</option><option>4+ quartos</option>
+      </select>
+    </div>
+    <button class="search-btn" onclick="triggerSearch()">🔍 Buscar</button>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     LISTAGENS
+══════════════════════════════════════════ -->
+<section class="listings-section" id="listings">
+  <div class="section-header reveal">
+    <h2 class="section-title">Imóveis em <span>Destaque</span></h2>
+    <a href="#" class="view-all">Ver todos →</a>
+  </div>
+  <div class="listings-grid" id="listings-grid"></div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SOBRE
+══════════════════════════════════════════ -->
+<section class="about-section" id="about">
+  <div class="reveal">
+    <div class="about-label">Quem somos</div>
+    <h2 class="about-title">Especialistas em imóveis no<br><em style="color:var(--gold);font-style:italic;">Rio Grande do Norte</em></h2>
+    <p class="about-text">A FOX Imóveis nasceu da paixão por conectar pessoas ao lar certo. Com corretores experientes e atendimento humanizado, cuidamos de cada etapa — da busca à chave na mão.</p>
+    <p class="about-text">Atuamos em toda a região metropolitana de Natal com avaliação, financiamento CAIXA, Minha Casa Minha Vida e assessoria jurídica completa.</p>
+    <a href="#" class="btn-primary" onclick="openWA(); return false;" style="margin-top:8px;display:inline-block;">Falar com a equipe</a>
+  </div>
+  <div class="about-grid reveal">
+    <div class="about-item"><div class="about-item-icon">🏆</div><div class="about-item-title">CRECI Ativo</div><div class="about-item-text">Corretores regularizados dentro das normas do COFECI-RN.</div></div>
+    <div class="about-item"><div class="about-item-icon">🤝</div><div class="about-item-title">Parceria com Bancos</div><div class="about-item-text">Facilitamos aprovações de crédito e financiamento habitacional.</div></div>
+    <div class="about-item"><div class="about-item-icon">📍</div><div class="about-item-title">Região Metropolitana</div><div class="about-item-text">Natal, Parnamirim, Macaíba, São Gonçalo e litoral potiguar.</div></div>
+    <div class="about-item"><div class="about-item-icon">📱</div><div class="about-item-title">Atendimento Digital</div><div class="about-item-text">WhatsApp, e-mail e vídeo para clientes de todo o Brasil.</div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     DEPOIMENTOS
+══════════════════════════════════════════ -->
+<section class="testimonials">
+  <div class="section-header reveal">
+    <h2 class="section-title">O que dizem nossos <span>clientes</span></h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <div class="testimonial-text">"O Ricardo Carvalho foi extremamente profissional. Em menos de 30 dias vendeu meu apartamento pelo valor que eu pedia. Recomendo demais a FOX!"</div>
+      <div class="testimonial-author"><div class="author-avatar">AM</div><div><div class="author-name">Ana Maria S.</div><div class="author-loc">Ponta Negra, Natal</div></div></div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <div class="testimonial-text">"O Ricardo Alves me ajudou a conquistar minha primeira casa pelo MCMV. Atendimento incrível do início ao fim!"</div>
+      <div class="testimonial-author"><div class="author-avatar">RF</div><div><div class="author-name">Roberto Figueiredo</div><div class="author-loc">Parnamirim – RN</div></div></div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <div class="testimonial-text">"Comprei um imóvel em Natal para investimento morando em São Paulo. Tudo via WhatsApp. Equipe incrível!"</div>
+      <div class="testimonial-author"><div class="author-avatar">PC</div><div><div class="author-name">Patrícia Campos</div><div class="author-loc">São Paulo – SP</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer id="contact">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">🦊 FOX Imóveis</div>
+      <p class="footer-desc">Seu corretor de confiança no Rio Grande do Norte. Compra, venda e locação com total segurança e transparência.</p>
+    </div>
+    <div>
+      <div class="footer-title">Links</div>
+      <div class="footer-links">
+        <a href="#listings">Imóveis à Venda</a>
+        <a href="#listings">Imóveis para Alugar</a>
+        <a href="#listings">Lançamentos</a>
+        <a href="#about">Sobre a FOX</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-title">Contato</div>
+      <div class="footer-links">
+        <a href="tel:+5584987289132">(84) 9 8728-9132</a>
+         <a href="mailto:ricardocarvalho@foximoveis.com.br">ricardocarvalho@foximoveis.com.br</a>
+        <a href="tel:+5584987290501">(84) 9 8729-0501</a>
+        <a href="mailto:ricardoalves@foximoveis.com.br">ricardoalves@foximoveis.com.br</a>
+        
+        <a href="#">Natal – RN</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 FOX Imóveis. Todos os direitos reservados.</span>
+    <span>Feito e idealizado pela BDKTech</span>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     WHATSAPP AGENT WIDGET
+══════════════════════════════════════════ -->
+<div class="wa-widget">
+  <div class="wa-chat" id="wa-chat">
+    <div class="wa-header">
+      <div class="wa-hdr-av">🦊</div>
+      <div>
+        <div class="wa-hdr-name">Assistente FOX Imóveis</div>
+        <div class="wa-hdr-status">🟢 Online agora</div>
+      </div>
+      <button class="wa-hdr-close" onclick="closeWA()">✕</button>
+    </div>
+    <div class="wa-msgs" id="wa-msgs">
+      <div class="msg msg-bot">👋 Olá! Sou o assistente virtual da <strong>FOX Imóveis</strong>.</div>
+      <div class="msg msg-bot">Para te ajudar a encontrar o imóvel ideal, você busca para <strong>comprar</strong> ou <strong>alugar</strong>? 🏠</div>
+    </div>
+    <div class="wa-quick" id="wa-quick">
+      <button class="q-btn" onclick="selectOpt('Comprar')">🏠 Comprar</button>
+      <button class="q-btn" onclick="selectOpt('Alugar')">🔑 Alugar</button>
+      <button class="q-btn" onclick="selectOpt('Só estou olhando')">👀 Só olhando</button>
+    </div>
+    <div class="wa-input-row">
+      <input class="wa-inp" id="wa-inp" type="text" placeholder="Digite sua mensagem..." onkeydown="if(event.key==='Enter')sendWA()">
+      <button class="wa-send-btn" onclick="sendWA()">➤</button>
+    </div>
+  </div>
+  <div class="wa-bubble" id="wa-bubble" onclick="toggleWA()">
+    🦊
+    <div class="wa-dot"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAINEL ADMIN
+══════════════════════════════════════════ -->
+<div id="admin-panel">
+  <div style="flex:1;" onclick="closeAdmin()"></div>
+  <div class="admin-sidebar" onclick="event.stopPropagation()">
+
+    <!-- VIEW: LOGIN -->
+    <div id="admin-login-view">
+      <div class="admin-header">
+        <div class="admin-title">🦊 Painel FOX Imóveis</div>
+        <button class="admin-close" onclick="closeAdmin()">✕</button>
+      </div>
+      <div class="admin-body" style="background:var(--bg-card);">
+        <div class="login-box">
+          <h2>Acesso Restrito</h2>
+          <p>Entre com suas credenciais para gerenciar os anúncios do site.</p>
+          <div class="form-group"><label>Usuário</label><input class="form-control" id="login-user" type="text" placeholder="seu.usuario" onkeydown="if(event.key==='Enter')doLogin()"></div>
+          <div class="form-group"><label>Senha</label><input class="form-control" id="login-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+          <button class="btn-form" onclick="doLogin()">Entrar no Painel</button>
+          <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
+          <p class="login-hint">Demo: usuário <strong>admin</strong> · senha <strong>fox2025</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: PAINEL PRINCIPAL -->
+    <div id="admin-main-view" style="display:none;flex-direction:column;height:100%;">
+      <div class="admin-header">
+        <div class="admin-title">🦊 Painel FOX Imóveis</div>
+        <button class="admin-close" onclick="closeAdmin()">✕</button>
+      </div>
+      <div class="admin-tabs">
+        <button class="admin-tab active"  onclick="switchAdminTab('imoveis',this)">🏠 Imóveis</button>
+        <button class="admin-tab"         onclick="switchAdminTab('corretores',this)">👤 Corretores</button>
+      </div>
+      <div class="admin-body" id="admin-body-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NOVO / EDITAR IMÓVEL -->
+<div class="modal-overlay" id="imovel-modal" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-title">Novo Anúncio</div>
+    <div class="form-grid">
+      <div class="form-group s2"><label>Título do Imóvel</label><input class="form-control" id="f-titulo" placeholder="Ex: Casa com piscina em condomínio fechado"></div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select class="form-control" id="f-tipo"><option>Casa</option><option>Apartamento</option><option>Cobertura</option><option>Terreno</option><option>Comercial</option><option>Chácara</option></select>
+      </div>
+      <div class="form-group">
+        <label>Modalidade</label>
+        <select class="form-control" id="f-modal"><option value="venda">Venda</option><option value="aluguel">Aluguel</option><option value="lancamento">Lançamento</option></select>
+      </div>
+      <div class="form-group"><label>Preço</label><input class="form-control" id="f-preco" placeholder="Ex: R$ 750.000 ou R$ 3.200/mês"></div>
+      <div class="form-group"><label>Área (m²)</label><input class="form-control" id="f-area" placeholder="280"></div>
+      <div class="form-group"><label>Quartos</label><input class="form-control" id="f-quartos" type="number" min="0" max="20" placeholder="4"></div>
+      <div class="form-group"><label>Suítes</label><input class="form-control" id="f-suites" type="number" min="0" max="20" placeholder="2"></div>
+      <div class="form-group"><label>Vagas</label><input class="form-control" id="f-vagas" type="number" min="0" max="20" placeholder="2"></div>
+      <div class="form-group"><label>Banheiros</label><input class="form-control" id="f-banheiros" type="number" min="0" max="20" placeholder="3"></div>
+      <div class="form-group s2"><label>Bairro / Cidade</label><input class="form-control" id="f-local" placeholder="Ex: Ponta Negra, Natal – RN"></div>
+      <div class="form-group s2"><label>Descrição</label><textarea class="form-control" id="f-desc" rows="3" placeholder="Descreva o imóvel, diferenciais, localização..."></textarea></div>
+      <div class="form-group s2">
+        <label>Fotos do Imóvel</label>
+        <div class="img-upload" onclick="document.getElementById('img-file-input').click()">
+          <input type="file" id="img-file-input" accept="image/*" multiple onchange="handleImgUpload(event)">
+          <div class="img-upload-lbl">📷 <span>Clique para adicionar fotos</span> · JPG, PNG · múltiplas imagens</div>
+        </div>
+        <div class="img-previews" id="img-previews"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+
+      <button class="btn-save"   onclick="saveImovel()">💾 Salvar Anúncio</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR PERFIL DO CORRETOR -->
+<div class="modal-overlay" id="corretor-modal" onclick="closeCorretorModal()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:520px;">
+    <div class="modal-title">✏ Editar Perfil do Corretor</div>
+
+    <!-- Avatar preview + upload de foto -->
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding:16px;
+                background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);">
+      <div id="cf-foto-preview"
+           style="width:72px;height:72px;border-radius:50%;overflow:hidden;flex-shrink:0;
+                  background:linear-gradient(135deg,#B8862A,#8B6420);
+                  display:flex;align-items:center;justify-content:center;
+                  font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;">RC</div>
+      <div>
+        <div style="font-weight:700;font-size:0.85rem;color:var(--text);margin-bottom:8px;">Foto de Perfil</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <label style="background:var(--gold);color:#fff;padding:7px 16px;border-radius:var(--radius-sm);
+                        font-size:0.78rem;font-weight:700;cursor:pointer;display:inline-block;">
+            📷 Escolher Foto
+            <input type="file" accept="image/*" style="display:none;" onchange="handleCorretorFoto(event)">
+          </label>
+          <button onclick="removeCorretorFoto()"
+                  style="background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.25);color:#C0392B;
+                         padding:7px 14px;border-radius:var(--radius-sm);font-size:0.78rem;font-weight:600;
+                         cursor:pointer;font-family:'DM Sans',sans-serif;">
+            🗑 Remover
+          </button>
+        </div>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-top:6px;">JPG ou PNG · será recortada em círculo</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group s2"><label>Nome Completo</label>
+        <input class="form-control" id="cf-nome" placeholder="Ex: Ricardo Carvalho"></div>
+      <div class="form-group"><label>Cargo / Função</label>
+        <input class="form-control" id="cf-role" placeholder="Corretor de Imóveis"></div>
+      <div class="form-group"><label>CRECI</label>
+        <input class="form-control" id="cf-creci" placeholder="CRECI-RN 0000"></div>
+      <div class="form-group"><label>Telefone</label>
+        <input class="form-control" id="cf-tel" placeholder="(84) 9 9999-9999"></div>
+      <div class="form-group"><label>E-mail</label>
+        <input class="form-control" id="cf-email" placeholder="nome@foximoveis.com.br"></div>
+      <div class="form-group"><label>Cidade / Região</label>
+        <input class="form-control" id="cf-cidade" placeholder="Natal – RN"></div>
+      <div class="form-group"><label>WhatsApp (só números)</label>
+        <input class="form-control" id="cf-wa" placeholder="5584999999999"></div>
+      <div class="form-group"><label>Instagram (usuário ou URL)</label>
+        <input class="form-control" id="cf-ig" placeholder="@foximoveis ou https://..."></div>
+      <div class="form-group s2"><label>Especialidades (separadas por vírgula)</label>
+        <input class="form-control" id="cf-badges" placeholder="Residencial, Comercial, Litoral, MCMV"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCorretorModal()">Cancelar</button>
+      <button class="btn-save"   onclick="saveCorretor()">💾 Salvar Perfil</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SCRIPTS -->
+<script src="fox_main.js"></script>
+<script src="fox_admin.js"></script>
+
+</body>
+</html>
