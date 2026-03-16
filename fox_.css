@@ -181,9 +181,10 @@ nav {
 }
 .stat-num {
   font-family:'Playfair Display',serif;
-  font-size:2rem; font-weight:700; color:var(--gold); line-height:1;
+  font-size:2rem; font-weight:700; color:var(--text); line-height:1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
-.stat-label { font-size:0.72rem; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:0.8px; }
+.stat-label { font-size:0.72rem; color:var(--text-2); margin-top:4px; text-transform:uppercase; letter-spacing:0.8px; font-weight:600; }
 
 /* ══════════════════════════════════════════
    CARROSSEL DE CARTÕES (formato 9:16)
@@ -197,14 +198,17 @@ nav {
 
 .biz-card {
   width: 265px;
-  /* 9:16 → height = width * 16/9 */
-  height: 472px;
+  /* altura automática baseada no conteúdo + espaço para os botões */
+  min-height: 520px;
+  height: auto;
   border-radius: 20px;
   overflow: hidden;
   position: relative;
   box-shadow: var(--shadow-lg), 0 0 0 1px rgba(184,134,42,0.12);
   flex-shrink: 0;
   transition: transform 0.35s ease, box-shadow 0.35s ease;
+  display: flex;
+  flex-direction: column;
 }
 .biz-card:hover { transform:translateY(-8px); box-shadow:0 32px 80px rgba(28,26,23,0.22), 0 0 0 1px rgba(184,134,42,0.2); }
 
@@ -271,19 +275,21 @@ nav {
 .biz-card-2 .biz-txt { color:#C8B88A; }
 
 /* badges */
-.biz-badges { padding:10px 18px 80px; display:flex; flex-wrap:wrap; gap:5px; }
+.biz-badges { padding:10px 18px 14px; display:flex; flex-wrap:wrap; gap:5px; flex:1; align-content:flex-start; }
 .biz-badge { padding:3px 9px; border-radius:99px; font-size:0.6rem; font-weight:700; letter-spacing:0.5px; }
 .biz-card-1 .biz-badge { background:rgba(184,134,42,0.1); border:1px solid rgba(184,134,42,0.25); color:var(--gold); }
 .biz-card-2 .biz-badge { background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3); color:#E8C96A; }
 
-/* ações */
+/* ações — agora no fluxo, não absolute */
 .biz-actions {
-  position:absolute; bottom:0; left:0; right:0;
-  padding:12px 14px 16px;
-  display:flex; gap:6px;
+  position: relative;
+  bottom: auto; left: auto; right: auto;
+  padding: 0 14px 18px;
+  display: flex; gap: 6px;
+  margin-top: auto;
 }
-.biz-card-1 .biz-actions { background:linear-gradient(to top,rgba(245,239,224,1) 60%,rgba(245,239,224,0) 100%); }
-.biz-card-2 .biz-actions { background:linear-gradient(to top,rgba(30,22,8,1) 60%,rgba(30,22,8,0) 100%); }
+.biz-card-1 .biz-actions { background: transparent; }
+.biz-card-2 .biz-actions { background: transparent; }
 
 .biz-btn {
   flex:1; padding:9px 6px; border-radius:8px;
@@ -719,23 +725,109 @@ textarea.form-control { resize:vertical; }
 /* ══════════════════════════════════════════
    RESPONSIVO
 ══════════════════════════════════════════ */
+
+/* Tablet */
 @media(max-width:1100px) {
   .hero { grid-template-columns:1fr; padding:110px 48px 72px; gap:60px; }
+  .hero-right { justify-content:center; }
   .listings-grid { grid-template-columns:repeat(2,1fr); }
   .about-section { grid-template-columns:1fr; gap:48px; }
   nav { padding:14px 32px; }
   .search-bar { grid-template-columns:1fr 1fr; }
   .search-section,.listings-section,.testimonials,footer { padding:56px 48px; }
+  .biz-card { width:240px; }
 }
+
+/* Mobile grande (até 700px) */
 @media(max-width:700px) {
+
+  /* Navbar */
+  nav { padding:10px 16px; }
+  .nav-links { display:none; }
+  .nav-logo-text { font-size:1.1rem; }
+  .nav-admin { padding:8px 10px; font-size:0.72rem; }
+  .nav-cta {
+    padding: 8px 12px;
+    font-size: 0.72rem;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  /* Hero */
+  .hero {
+    grid-template-columns:1fr;
+    padding: 90px 16px 48px;
+    gap: 40px;
+  }
+  .hero h1 { font-size: clamp(1.9rem, 8vw, 2.8rem); }
+  .hero-desc { font-size:0.92rem; }
+  .hero-btns { flex-direction:column; gap:10px; }
+  .btn-primary, .btn-outline { width:100%; text-align:center; padding:13px 20px; }
+
+  /* Stats — cor legível sobre fundo foto */
+  .hero-stats {
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 20px 16px;
+    background: rgba(255,255,255,0.85);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  .stat-num { font-size:1.6rem; color:var(--text); }
+  .stat-label { font-size:0.65rem; color:var(--text-2); }
+
+  /* Cards corretores — side by side menores */
+  .hero-right { width:100%; }
+  .cards-duo {
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+  }
+  .biz-card {
+    width: calc(50% - 5px);
+    min-width: 155px;
+    max-width: 210px;
+    min-height: auto;
+  }
+  .biz-card-2 { margin-top: 20px; }
+  .biz-avatar-wrap { padding:10px 12px 0; gap:8px; }
+  .biz-avatar { width:40px; height:40px; font-size:1rem; }
+  .biz-name { font-size:0.78rem; }
+  .biz-role { font-size:0.56rem; }
+  .biz-creci { font-size:0.55rem; }
+  .biz-card-header { padding:12px 12px 10px; }
+  .biz-logo-emoji { font-size:1rem; }
+  .biz-logo-name { font-size:0.78rem; }
+  .biz-card-sub { font-size:0.5rem; letter-spacing:1.5px; }
+  .biz-divider { margin:8px 12px; }
+  .biz-info { padding:0 12px; gap:5px; }
+  .biz-txt { font-size:0.62rem; }
+  .biz-icon { font-size:0.65rem; }
+  .biz-badges { padding:6px 12px 10px; gap:4px; }
+  .biz-badge { font-size:0.52rem; padding:2px 7px; }
+  .biz-actions { padding:0 10px 14px; gap:5px; }
+  .biz-btn { font-size:0.6rem; padding:7px 4px; gap:3px; }
+
+  /* Sections */
   .listings-grid,.testimonials-grid,.footer-grid { grid-template-columns:1fr; }
   .search-bar { grid-template-columns:1fr; }
-  nav { padding:12px 20px; }
-  .nav-links { display:none; }
-  .hero { padding:100px 20px 56px; }
-  .search-section,.listings-section,.testimonials,footer,.about-section { padding:40px 20px; }
-  .cards-duo { gap:12px; }
-  .biz-card { width:175px; height:312px; }
+  .search-section,.listings-section,.testimonials,footer,.about-section { padding:36px 16px; }
+  .about-section { gap:32px; }
+
+  /* Admin modal */
   .form-grid { grid-template-columns:1fr; }
   .form-grid .s2 { grid-column:span 1; }
+  .admin-sidebar { width:100vw; }
+  .modal-box { padding:20px 16px; }
 }
+
+/* Mobile pequeno (até 400px) */
+@media(max-width:400px) {
+  .cards-duo { gap:8px; }
+  .biz-card { min-width:140px; }
+  .nav-cta { padding:7px 10px; font-size:0.68rem; }
+  .hero-stats { gap:14px; }
+  .stat-num { font-size:1.4rem; }
+}
+
