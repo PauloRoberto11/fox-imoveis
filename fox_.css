@@ -722,6 +722,18 @@ textarea.form-control { resize:vertical; }
 .reveal { opacity:0; transform:translateY(28px); transition:all 0.65s ease; }
 .reveal.visible { opacity:1; transform:translateY(0); }
 
+/* dica swipe cards — só aparece no mobile */
+.swipe-hint {
+  display: none;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  margin-top: -8px;
+  padding-bottom: 4px;
+  opacity: 0.7;
+}
+
 /* ══════════════════════════════════════════
    RESPONSIVO
 ══════════════════════════════════════════ */
@@ -764,7 +776,7 @@ textarea.form-control { resize:vertical; }
   .hero-btns { flex-direction:column; gap:10px; }
   .btn-primary, .btn-outline { width:100%; text-align:center; padding:13px 20px; }
 
-  /* Stats — cor legível sobre fundo foto */
+  /* Stats — legível sobre fundo foto */
   .hero-stats {
     gap: 20px;
     flex-wrap: wrap;
@@ -777,43 +789,64 @@ textarea.form-control { resize:vertical; }
   .stat-num { font-size:1.6rem; color:var(--text); }
   .stat-label { font-size:0.65rem; color:var(--text-2); }
 
-  /* Cards corretores — side by side menores */
-  .hero-right { width:100%; }
-  .cards-duo {
-    gap: 10px;
-    justify-content: center;
+  /* ── CARDS CORRETORES: scroll horizontal ── */
+  .hero-right {
     width: 100%;
+    /* sangra para fora do padding do hero */
+    margin-left: -16px;
+    margin-right: -16px;
+    width: calc(100% + 32px);
   }
+  .cards-duo {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 16px;
+    padding: 12px 16px 24px;
+    align-items: flex-start;
+    /* esconde scrollbar mas mantém funcional */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .cards-duo::-webkit-scrollbar { display: none; }
+
   .biz-card {
-    width: calc(50% - 5px);
-    min-width: 155px;
-    max-width: 210px;
+    /* card ocupa ~85% da tela — visível o próximo na borda */
+    width: min(260px, 80vw);
+    min-width: min(260px, 80vw);
+    max-width: 280px;
     min-height: auto;
+    height: auto;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    /* parar animação float no mobile para não travar o scroll */
+    animation: none !important;
+    transform: none !important;
   }
-  .biz-card-2 { margin-top: 20px; }
-  .biz-avatar-wrap { padding:10px 12px 0; gap:8px; }
-  .biz-avatar { width:40px; height:40px; font-size:1rem; }
-  .biz-name { font-size:0.78rem; }
-  .biz-role { font-size:0.56rem; }
-  .biz-creci { font-size:0.55rem; }
-  .biz-card-header { padding:12px 12px 10px; }
-  .biz-logo-emoji { font-size:1rem; }
-  .biz-logo-name { font-size:0.78rem; }
-  .biz-card-sub { font-size:0.5rem; letter-spacing:1.5px; }
-  .biz-divider { margin:8px 12px; }
-  .biz-info { padding:0 12px; gap:5px; }
-  .biz-txt { font-size:0.62rem; }
-  .biz-icon { font-size:0.65rem; }
-  .biz-badges { padding:6px 12px 10px; gap:4px; }
-  .biz-badge { font-size:0.52rem; padding:2px 7px; }
-  .biz-actions { padding:0 10px 14px; gap:5px; }
-  .biz-btn { font-size:0.6rem; padding:7px 4px; gap:3px; }
+  /* segundo card sem margin-top no scroll horizontal */
+  .biz-card-2 { margin-top: 0; }
+
+  /* indicador de scroll — seta deslize */
+  .cards-duo::after {
+    content: '';
+    display: block;
+    min-width: 8px;
+    flex-shrink: 0;
+  }
 
   /* Sections */
   .listings-grid,.testimonials-grid,.footer-grid { grid-template-columns:1fr; }
   .search-bar { grid-template-columns:1fr; }
   .search-section,.listings-section,.testimonials,footer,.about-section { padding:36px 16px; }
   .about-section { gap:32px; }
+
+  /* dica swipe visível no mobile */
+  .swipe-hint { display: block; }
 
   /* Admin modal */
   .form-grid { grid-template-columns:1fr; }
@@ -824,8 +857,7 @@ textarea.form-control { resize:vertical; }
 
 /* Mobile pequeno (até 400px) */
 @media(max-width:400px) {
-  .cards-duo { gap:8px; }
-  .biz-card { min-width:140px; }
+  .biz-card { width: min(240px, 82vw); min-width: min(240px, 82vw); }
   .nav-cta { padding:7px 10px; font-size:0.68rem; }
   .hero-stats { gap:14px; }
   .stat-num { font-size:1.4rem; }
