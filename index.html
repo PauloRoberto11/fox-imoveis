@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FOX Corretores | Seu Lar Ideal em Natal – RN</title>
-  <link rel="stylesheet" href="fox_.css">
+  <link rel="stylesheet" href="fox_imoveis.css">
 </head>
 <body>
 
@@ -298,9 +298,9 @@
       <div class="footer-title">Contato</div>
       <div class="footer-links">
         <a href="tel:+5584987289132">(84) 9 8728-9132</a>
-         <a href="mailto:ricardocarvalho@foxcorretores.com.br">ricardocarvalho@foxcorretores.com.br</a>
+         ricardoalves@foxcorretores.com.br
         <a href="tel:+5584987290501">(84) 9 8729-0501</a>
-        <a href="mailto:ricardoalves@foxcorretores.com.br">ricardoalves@foxcorretores.com.br</a>
+        ricardocarvalho@foxcorretores.com.br
         
         <a href="#">Natal – RN</a>
       </div>
@@ -362,11 +362,11 @@
         <div class="login-box">
           <h2>Acesso Restrito</h2>
           <p>Entre com suas credenciais para gerenciar os anúncios do site.</p>
-          <div class="form-group"><label>Usuário</label><input class="form-control" id="login-user" type="text" placeholder="seu.usuario" onkeydown="if(event.key==='Enter')doLogin()"></div>
+          <div class="form-group"><label>E-mail</label><input class="form-control" id="login-user" type="email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
           <div class="form-group"><label>Senha</label><input class="form-control" id="login-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
           <button class="btn-form" onclick="doLogin()">Entrar no Painel</button>
           <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
-          <p class="login-hint">Demo: usuário <strong>admin</strong> · senha <strong>fox2025</strong></p>
+          <p class="login-hint" style="color:var(--text-muted);font-size:0.72rem;margin-top:12px;">Use seu e-mail e senha cadastrados pela administração.</p>
         </div>
       </div>
     </div>
@@ -472,11 +472,17 @@
       <div class="form-group"><label>WhatsApp (só números)</label>
         <input class="form-control" id="cf-wa" placeholder="5584999999999"></div>
       <div class="form-group"><label>Instagram (usuário ou URL)</label>
-        <input class="form-control" id="cf-ig" placeholder="@foxcorretores ou https://..."></div>
+        <input class="form-control" id="cf-ig" placeholder="@foxcorretores ou https://...">
+      </div>
       <div class="form-group s2"><label>Especialidades (separadas por vírgula)</label>
-        <input class="form-control" id="cf-badges" placeholder="Residencial, Comercial, Litoral, MCMV"></div>
+        <input class="form-control" id="cf-badges" placeholder="Residencial, Comercial, Litoral, MCMV">
+      </div>
+      <div class="form-group s2">
+        <label>Senha de Acesso ao Painel</label>
+        <input class="form-control" id="cf-senha" type="password" placeholder="Deixe em branco para não alterar">
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-top:5px;">Define ou altera a senha de login deste corretor no painel admin.</p>
+      </div>
     </div>
-
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeCorretorModal()">Cancelar</button>
       <button class="btn-save"   onclick="saveCorretor()">💾 Salvar Perfil</button>

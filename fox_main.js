@@ -1,76 +1,165 @@
 /* ══════════════════════════════════════════
-   FOX IMÓVEIS — JS Principal v2
-   Listings · WA Agent (c/ escolha corretor) · Utils
+   FOX IMÓVEIS — fox_main.js v3
+   Supabase + Cloudinary integrado
 ══════════════════════════════════════════ */
 
-/* ── DADOS LISTINGS ── */
-const STORAGE_KEY = 'fox_listings_v3';
+/* ── CONFIGURAÇÃO ── */
+const SB_URL    = 'https://jhknkeewysbbnvreckcb.supabase.co';
+const SB_KEY    = 'sb_publishable_4cELlKbvvVy0VSPduh0QMA_pISM00a-';
+const CLD_NAME  = 'dtyrgv4ut';
+const CLD_PRESET = 'fox_unsigned';
 
-const defaultListings = [
-  { id:1, titulo:'Casa Alto Padrão com Piscina', tipo:'Casa', modal:'venda',
-    preco:'R$ 750.000', area:'280', quartos:'4', suites:'3', vagas:'2', banheiros:'3',
-    local:'Ponta Negra, Natal – RN', desc:'', imgs:[], emoji:'🏠', grad:'ig1' },
-  { id:2, titulo:'Apartamento Vista Mar 3 Quartos', tipo:'Apartamento', modal:'aluguel',
-    preco:'R$ 3.200', area:'95', quartos:'3', suites:'1', vagas:'1', banheiros:'2',
-    local:'Capim Macio, Natal – RN', desc:'', imgs:[], emoji:'🏢', grad:'ig2' },
-  { id:3, titulo:'Casa de Luxo Condomínio Fechado', tipo:'Casa', modal:'lancamento',
-    preco:'R$ 1.200.000', area:'420', quartos:'5', suites:'4', vagas:'3', banheiros:'5',
-    local:'Neópolis, Natal – RN', desc:'', imgs:[], emoji:'🏡', grad:'ig3' },
-  { id:4, titulo:'Casa Geminada 2 Quartos + Quintal', tipo:'Casa', modal:'venda',
-    preco:'R$ 320.000', area:'95', quartos:'2', suites:'1', vagas:'1', banheiros:'2',
-    local:'Candelária, Natal – RN', desc:'', imgs:[], emoji:'🏠', grad:'ig4' },
-  { id:5, titulo:'Terreno Residencial Plano', tipo:'Terreno', modal:'venda',
-    preco:'R$ 180.000', area:'360', quartos:'', suites:'', vagas:'', banheiros:'',
-    local:'Parnamirim – RN', desc:'', imgs:[], emoji:'🏗️', grad:'ig5' },
-  { id:6, titulo:'Studio Moderno Mobiliado', tipo:'Apartamento', modal:'aluguel',
-    preco:'R$ 1.800', area:'42', quartos:'1', suites:'', vagas:'1', banheiros:'1',
-    local:'Petrópolis, Natal – RN', desc:'', imgs:[], emoji:'🏢', grad:'ig6' },
-];
+/* ── CLIENTE SUPABASE (via fetch REST) ── */
+const sb = {
+  from: (table) => ({
+    select: async (cols = '*') => {
+      const r = await fetch(`${SB_URL}/rest/v1/${table}?select=${cols}&order=id.asc`, {
+        headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }
+      });
+      return r.json();
+    },
+    insert: async (data) => {
+      const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+        method: 'POST',
+        headers: {
+          apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
+          'Content-Type': 'application/json', Prefer: 'return=representation'
+        },
+        body: JSON.stringify(data)
+      });
+      return r.json();
+    },
+    update: async (data, match) => {
+      const params = Object.entries(match).map(([k,v]) => `${k}=eq.${v}`).join('&');
+      const r = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
+        method: 'PATCH',
+        headers: {
+          apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
+          'Content-Type': 'application/json', Prefer: 'return=representation'
+        },
+        body: JSON.stringify(data)
+      });
+      return r.json();
+    },
+    delete: async (match) => {
+      const params = Object.entries(match).map(([k,v]) => `${k}=eq.${v}`).join('&');
+      const r = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
+        method: 'DELETE',
+        headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }
+      });
+      return r.ok;
+    }
+  })
+};
 
+/* ── UPLOAD CLOUDINARY ── */
+async function uploadToCloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLD_PRESET);
+  fd.append('folder', 'fox-imoveis');
+  const r = await fetch(`https://api.cloudinary.com/v1_1/${CLD_NAME}/image/upload`, {
+    method: 'POST', body: fd
+  });
+  const data = await r.json();
+  return data.secure_url;
+}
+
+/* ── LABELS ── */
 const labelMap = { venda:'label-sale', aluguel:'label-rent', lancamento:'label-new' };
 const labelTxt = { venda:'Venda', aluguel:'Aluguel', lancamento:'Lançamento' };
 
-function getListings() {
-  try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : defaultListings; }
-  catch { return defaultListings; }
-}
-function saveListings(arr) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); } catch {}
-}
-if (!localStorage.getItem(STORAGE_KEY)) saveListings(defaultListings);
-
-/* ── RENDER CARDS ── */
-function renderListings() {
+/* ── RENDER CARDS DO SITE ── */
+async function renderListings() {
   const grid = document.getElementById('listings-grid');
   if (!grid) return;
-  const data = getListings();
-  grid.innerHTML = '';
-  data.forEach(p => {
-    const imgH = (p.imgs && p.imgs.length)
-      ? `<img class="prop-img" src="${p.imgs[0]}" alt="${p.titulo}">`
-      : `<div class="card-img-bg ${p.grad||''}">${p.emoji||'🏠'}</div>`;
-    const feats = [];
-    if (p.quartos)  feats.push(`<div class="feature">🛏 <strong>${p.quartos}</strong>&nbsp;qtos</div>`);
-    if (p.suites)   feats.push(`<div class="feature">🚿 <strong>${p.suites}</strong>&nbsp;suítes</div>`);
-    if (p.vagas)    feats.push(`<div class="feature">🚗 <strong>${p.vagas}</strong>&nbsp;vagas</div>`);
-    if (p.area)     feats.push(`<div class="feature">📐 <strong>${p.area}</strong>&nbsp;m²</div>`);
-    const pSub = p.modal === 'aluguel' ? '<span class="card-price-sub">/mês</span>' : '';
-    grid.innerHTML += `
-      <div class="listing-card reveal">
-        <div class="card-img">
-          ${imgH}
-          <span class="card-label ${labelMap[p.modal]||'label-sale'}">${labelTxt[p.modal]||p.modal}</span>
-          <div class="card-fav" onclick="toggleFav(this)">🤍</div>
-        </div>
-        <div class="card-body">
-          <div class="card-price">${p.preco}${pSub}</div>
-          <div class="card-title-prop">${p.titulo}</div>
-          <div class="card-location">📍 ${p.local}</div>
-          <div class="card-features">${feats.join('')}</div>
-        </div>
-      </div>`;
-  });
-  document.querySelectorAll('.reveal:not(.visible)').forEach(el => observer.observe(el));
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);font-size:0.9rem;">Carregando imóveis...</div>';
+  try {
+    const data = await sb.from('imoveis').select('*');
+    if (!data || data.length === 0) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhum imóvel cadastrado ainda.</div>';
+      return;
+    }
+    grid.innerHTML = '';
+    data.forEach(p => {
+      const imgsArr = p.imgs ? p.imgs.split(',').map(s => s.trim()).filter(Boolean) : [];
+      const imgH = imgsArr.length
+        ? `<img class="prop-img" src="${imgsArr[0]}" alt="${p.titulo}">`
+        : `<div class="card-img-bg ${p.grad||'ig1'}">${p.emoji||'🏠'}</div>`;
+      const feats = [];
+      if (p.quartos)  feats.push(`<div class="feature">🛏 <strong>${p.quartos}</strong>&nbsp;qtos</div>`);
+      if (p.suites)   feats.push(`<div class="feature">🚿 <strong>${p.suites}</strong>&nbsp;suítes</div>`);
+      if (p.vagas)    feats.push(`<div class="feature">🚗 <strong>${p.vagas}</strong>&nbsp;vagas</div>`);
+      if (p.area)     feats.push(`<div class="feature">📐 <strong>${p.area}</strong>&nbsp;m²</div>`);
+      const pSub = p.modal === 'aluguel' ? '<span class="card-price-sub">/mês</span>' : '';
+      grid.innerHTML += `
+        <div class="listing-card reveal">
+          <div class="card-img">
+            ${imgH}
+            <span class="card-label ${labelMap[p.modal]||'label-sale'}">${labelTxt[p.modal]||p.modal}</span>
+            <div class="card-fav" onclick="toggleFav(this)">🤍</div>
+          </div>
+          <div class="card-body">
+            <div class="card-price">${p.preco}${pSub}</div>
+            <div class="card-title-prop">${p.titulo}</div>
+            <div class="card-location">📍 ${p.local}</div>
+            <div class="card-features">${feats.join('')}</div>
+          </div>
+        </div>`;
+    });
+    document.querySelectorAll('.reveal:not(.visible)').forEach(el => observer.observe(el));
+  } catch(e) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Erro ao carregar imóveis. Verifique a conexão.</div>';
+  }
+}
+
+/* ── CARREGAR CORRETORES DO SUPABASE E APLICAR NOS CARDS ── */
+async function loadAndApplyCorretores() {
+  try {
+    const list = await sb.from('corretores').select('*');
+    if (!list || !list.length) return;
+    window._corretoresCache = list;
+    list.forEach(c => {
+      const card = document.querySelector(`.biz-card-${c.card}`);
+      if (!card) return;
+      const av = card.querySelector('.biz-avatar');
+      if (av) {
+        if (c.foto) {
+          av.innerHTML = `<img src="${c.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${c.nome}">`;
+          av.style.padding = '0';
+        } else {
+          av.innerHTML = c.sigla || '';
+          av.style.padding = '';
+        }
+      }
+      const nm = card.querySelector('.biz-name');  if (nm) nm.textContent = c.nome;
+      const rl = card.querySelector('.biz-role');  if (rl) rl.textContent = c.role;
+      const cr = card.querySelector('.biz-creci'); if (cr) cr.textContent = c.creci;
+      const rows = card.querySelectorAll('.biz-txt');
+      if (rows[0]) rows[0].textContent = c.tel;
+      if (rows[1]) rows[1].textContent = c.email;
+      if (rows[2]) rows[2].textContent = `· ${c.cidade} ·`;
+      const badgesWrap = card.querySelector('.biz-badges');
+      if (badgesWrap && c.badges) {
+        const bArr = c.badges.split(',').map(b => b.trim()).filter(Boolean);
+        badgesWrap.innerHTML = bArr.map(b => `<span class="biz-badge">${b}</span>`).join('');
+      }
+      const waBtn = card.querySelector('.biz-btn-wa');
+      if (waBtn && c.wa) {
+        waBtn.onclick = (e) => {
+          e.preventDefault();
+          window.open(`https://wa.me/${c.wa}?text=Olá ${c.nome}, vim pelo site da FOX Imóveis!`, '_blank');
+        };
+      }
+      const igBtn = card.querySelector('.biz-btn-ig');
+      if (igBtn && c.ig) {
+        igBtn.href   = c.ig.startsWith('http') ? c.ig : `https://instagram.com/${c.ig}`;
+        igBtn.target = '_blank';
+      }
+    });
+  } catch(e) {
+    console.warn('Erro ao carregar corretores:', e);
+  }
 }
 
 /* ── SCROLL REVEAL ── */
@@ -90,7 +179,7 @@ function shareCard() {
 }
 function triggerSearch() {
   openWA();
-  setTimeout(() => addMsg('🔍 Recebi sua busca! Deixa eu verificar as melhores opções para você...'), 400);
+  setTimeout(() => addMsg('🔍 Recebi sua busca! Deixa eu verificar as melhores opções...'), 400);
 }
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -100,26 +189,20 @@ function showToast(msg) {
 }
 
 /* ══════════════════════════════════════════
-   WHATSAPP AGENT — com escolha de corretor
+   WHATSAPP AGENT
 ══════════════════════════════════════════ */
-
-/* Lê nomes e WA dos corretores do storage (ou usa defaults) */
 function getCorretoresWA() {
-  try {
-    const list = JSON.parse(localStorage.getItem('fox_corretores_v2') || '[]');
-    if (list.length) return list.map(c => ({ nome: c.nome, wa: c.wa }));
-  } catch {}
+  if (window._corretoresCache && window._corretoresCache.length)
+    return window._corretoresCache.map(c => ({ nome: c.nome, wa: c.wa }));
   return [
     { nome: 'Ricardo Carvalho', wa: '5584987289132' },
     { nome: 'Ricardo Alves',    wa: '5584987290501' },
   ];
 }
 
-/* Contexto da conversa — rastreia modalidade para bifurcar faixa de preço */
-let waCtx = { modalidade: 'compra' }; // 'compra' | 'aluguel'
+let waCtx = { modalidade: 'compra' };
 
 const flows = {
-  /* ── COMPRA ── */
   inicio: {
     bot: ['Ótimo! Que tipo de imóvel você procura?'],
     opts: ['🏠 Casa', '🏢 Apartamento', '🌿 Chácara/Sítio', '🏗 Terreno', '🏬 Comercial'],
@@ -130,8 +213,6 @@ const flows = {
     opts: ['Ponta Negra', 'Capim Macio', 'Petrópolis', 'Parnamirim', 'Outro bairro'],
     next: 'local'
   },
-
-  /* ── ALUGUEL ── */
   alugar: {
     bot: ['Para locação, qual tipo de imóvel?'],
     opts: ['🏠 Casa', '🏢 Apartamento', '🏬 Comercial', '🛋 Studio'],
@@ -149,13 +230,7 @@ const flows = {
   },
   quartos_al: {
     bot: ['Qual a faixa de aluguel mensal que você busca?'],
-    opts: [
-      'R$ 500 – R$ 1.499/mês',
-      'R$ 1.500 – R$ 3.000/mês',
-      'R$ 3.001 – R$ 4.999/mês',
-      'R$ 5.000 – R$ 10.000/mês',
-      'Acima de R$ 10.000/mês',
-    ],
+    opts: ['R$ 500 – R$ 1.499/mês','R$ 1.500 – R$ 3.000/mês','R$ 3.001 – R$ 4.999/mês','R$ 5.000 – R$ 10.000/mês','Acima de R$ 10.000/mês'],
     next: 'preco_al'
   },
   preco_al: {
@@ -163,8 +238,6 @@ const flows = {
     opts: ['Sim, 1 vaga', 'Sim, 2+ vagas', 'Não preciso'],
     next: 'garagem'
   },
-
-  /* ── COMPARTILHADO (compra) ── */
   local: {
     bot: ['Quantos quartos você precisa?'],
     opts: ['1 quarto', '2 quartos', '3 quartos', '4+ quartos'],
@@ -180,8 +253,6 @@ const flows = {
     opts: ['Sim, 1 vaga', 'Sim, 2+ vagas', 'Não preciso'],
     next: 'garagem'
   },
-
-  /* ── FIM DO FUNIL (comum) ── */
   garagem: {
     bot: ['Vai precisar de financiamento bancário?'],
     opts: ['Sim, preciso', 'Não, à vista', 'Tenho dúvidas'],
@@ -189,18 +260,13 @@ const flows = {
   },
   corretor: {
     bot: ['Quase lá! 😊 Com qual dos nossos corretores você prefere ser atendido?'],
-    opts: [], // preenchido dinamicamente
-    next: 'fim'
+    opts: [], next: 'fim'
   },
-  fim: {
-    bot: [],
-    opts: [],
-    next: 'wa_open'
-  },
+  fim: { bot: [], opts: [], next: 'wa_open' },
 };
 
 function openWA() {
-  waCtx = { modalidade: 'compra' }; // reset contexto a cada nova conversa
+  waCtx = { modalidade: 'compra' };
   document.getElementById('wa-chat').classList.add('open');
   document.getElementById('wa-bubble').style.display = 'none';
 }
@@ -211,7 +277,6 @@ function closeWA() {
 function toggleWA() {
   document.getElementById('wa-chat').classList.contains('open') ? closeWA() : openWA();
 }
-
 function addMsg(text, isUser = false) {
   const m = document.getElementById('wa-msgs');
   const d = document.createElement('div');
@@ -220,7 +285,6 @@ function addMsg(text, isUser = false) {
   m.appendChild(d);
   m.scrollTop = m.scrollHeight;
 }
-
 function setQBtns(opts, step) {
   const c = document.getElementById('wa-quick');
   c.innerHTML = '';
@@ -232,37 +296,24 @@ function setQBtns(opts, step) {
     c.appendChild(b);
   });
 }
-
 function selectOpt(opt, step) {
-  /* ── Botão final "Abrir WhatsApp" ── */
   if (opt.startsWith('📲')) {
-    const waUrl = opt.match(/\|WA:([\d]+)/);
-    const num   = waUrl ? waUrl[1] : '5584987289132';
-    window.open(`https://wa.me/${num}?text=Olá! Vim pelo site da FOX Imóveis e gostaria de atendimento.`, '_blank');
+    const m = opt.match(/\|WA:([\d]+)/);
+    window.open(`https://wa.me/${m ? m[1] : '5584987289132'}?text=Olá! Vim pelo site da FOX Imóveis.`, '_blank');
     return;
   }
-
   addMsg(opt, true);
   document.getElementById('wa-quick').innerHTML = '';
-
-  /* ── Roteamento inicial ── */
   let nx;
-  if (opt === 'Comprar') {
-    waCtx.modalidade = 'compra';
-    nx = 'inicio';
-  } else if (opt === 'Alugar') {
-    waCtx.modalidade = 'aluguel';
-    nx = 'alugar';
-  } else if (opt === 'Só estou olhando') {
+  if (opt === 'Comprar')           { waCtx.modalidade = 'compra';  nx = 'inicio'; }
+  else if (opt === 'Alugar')       { waCtx.modalidade = 'aluguel'; nx = 'alugar'; }
+  else if (opt === 'Só estou olhando') {
     setTimeout(() => addMsg('Sem problema! 😊 Explore à vontade. Qualquer dúvida, é só chamar!'), 600);
     return;
-  } else if (step) {
-    nx = flows[step]?.next;
-  } else {
-    nx = 'inicio';
   }
+  else if (step) nx = flows[step]?.next;
+  else           nx = 'inicio';
 
-  /* ── Etapa especial: corretor ── */
   if (nx === 'corretor') {
     const corretores = getCorretoresWA();
     const nomes = corretores.map(c => `👤 ${c.nome}`);
@@ -273,30 +324,23 @@ function selectOpt(opt, step) {
     }, 600);
     return;
   }
-
-  /* ── Etapa especial: fim (depois de escolher corretor) ── */
   if (step === 'corretor') {
     const corretores = getCorretoresWA();
-    let waNum   = corretores[0]?.wa || '5584987289132';
-    let nomeEsc = corretores[0]?.nome || 'nosso corretor';
-
+    let waNum = corretores[0]?.wa || '5584987289132';
+    let nome  = corretores[0]?.nome || 'nosso corretor';
     if (!opt.includes('Tanto faz')) {
       const match = corretores.find(c => opt.includes(c.nome));
-      if (match) { waNum = match.wa; nomeEsc = match.nome; }
+      if (match) { waNum = match.wa; nome = match.nome; }
     } else {
       const rnd = corretores[Math.floor(Math.random() * corretores.length)];
-      waNum   = rnd.wa;
-      nomeEsc = rnd.nome;
+      waNum = rnd.wa; nome = rnd.nome;
     }
-
     setTimeout(() => {
-      addMsg(`✅ Perfeito! O corretor <strong>${nomeEsc}</strong> será seu atendente. Clique abaixo para conversar agora:`);
-      setTimeout(() => setQBtns([`📲 Falar com ${nomeEsc}|WA:${waNum}`], 'fim'), 300);
+      addMsg(`✅ Perfeito! O corretor <strong>${nome}</strong> será seu atendente. Clique abaixo:`);
+      setTimeout(() => setQBtns([`📲 Falar com ${nome}|WA:${waNum}`], 'fim'), 300);
     }, 600);
     return;
   }
-
-  /* ── Fluxo padrão ── */
   if (nx && flows[nx]) {
     const f = flows[nx];
     setTimeout(() => {
@@ -305,20 +349,19 @@ function selectOpt(opt, step) {
     }, 600);
   }
 }
-
 function sendWA() {
   const i = document.getElementById('wa-inp');
   const v = i.value.trim();
   if (!v) return;
   addMsg(v, true);
   i.value = '';
-  const corretores = getCorretoresWA();
-  const waNum = corretores[0]?.wa || '5584987289132';
-  setTimeout(() => addMsg(`Obrigado! 😊 Nossa equipe responderá logo. Ou <a href="https://wa.me/${waNum}" target="_blank" style="color:#25D366;font-weight:600;">clique aqui</a> para falar agora.`), 800);
+  const num = getCorretoresWA()[0]?.wa || '5584987289132';
+  setTimeout(() => addMsg(`Obrigado! 😊 Nossa equipe responderá logo. Ou <a href="https://wa.me/${num}" target="_blank" style="color:#25D366;font-weight:600;">clique aqui</a>.`), 800);
 }
 
-/* ── Init ── */
-document.addEventListener('DOMContentLoaded', () => {
-  renderListings();
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadAndApplyCorretores();
+  await renderListings();
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 });
