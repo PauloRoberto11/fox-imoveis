@@ -70,16 +70,68 @@ const labelMap = { venda:'label-sale', aluguel:'label-rent', lancamento:'label-n
 const labelTxt = { venda:'Venda', aluguel:'Aluguel', lancamento:'Lançamento' };
 
 /* ── RENDER CARDS DO SITE ── */
-async function renderListings() {
+async function renderListings(filtros = {}) {
   const grid = document.getElementById('listings-grid');
   if (!grid) return;
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);font-size:0.9rem;">Carregando imóveis...</div>';
   try {
-    const data = await sb.from('imoveis').select('*');
-    if (!data || data.length === 0) {
-      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhum imóvel cadastrado ainda.</div>';
+    let data = await sb.from('imoveis').select('*');
+    if (!data) data = [];
+
+    /* ── aplicar filtros localmente ── */
+    const { local, tipo, preco, quartos, modal } = filtros;
+
+    if (modal)   data = data.filter(p => p.modal === modal);
+    if (tipo)    data = data.filter(p => p.tipo?.toLowerCase() === tipo.toLowerCase());
+    if (local)   data = data.filter(p =>
+      p.local?.toLowerCase().includes(local) ||
+      p.titulo?.toLowerCase().includes(local)
+    );
+    if (quartos) {
+      data = data.filter(p => {
+        const q = parseInt(p.quartos) || 0;
+        if (quartos === '4') return q >= 4;
+        return q === parseInt(quartos);
+      });
+    }
+    if (preco) {
+      data = data.filter(p => {
+        /* extrai número do preço — remove R$, pontos, /mês etc */
+        const num = parseFloat(
+          (p.preco || '').replace(/[^\d,]/g,'').replace(',','.') || '0'
+        );
+        const emMil = num > 10000 ? num / 1000 : num; /* normaliza para milhares */
+        if (preco === '0-200')    return emMil <= 200;
+        if (preco === '200-500')  return emMil > 200  && emMil <= 500;
+        if (preco === '500-1000') return emMil > 500  && emMil <= 1000;
+        if (preco === '1000+')    return emMil > 1000;
+        return true;
+      });
+    }
+
+    /* ── atualizar título da seção ── */
+    const titulo = document.querySelector('.section-title');
+    const btnVerTodos = document.querySelector('.view-all');
+    if (titulo) {
+      const temFiltro = local || tipo || preco || quartos || modal;
+      titulo.innerHTML = temFiltro
+        ? `Resultados <span>(${data.length} encontrado${data.length !== 1 ? 's' : ''})</span>`
+        : 'Imóveis em <span>Destaque</span>';
+    }
+    if (btnVerTodos) {
+      btnVerTodos.style.display = (local || tipo || preco || quartos || modal) ? 'none' : '';
+    }
+
+    if (data.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 20px;">
+        <div style="font-size:2.5rem;margin-bottom:12px;">🔍</div>
+        <div style="font-weight:600;font-size:1rem;color:var(--text);margin-bottom:8px;">Nenhum imóvel encontrado</div>
+        <div style="font-size:0.88rem;color:var(--text-muted);margin-bottom:20px)">Tente outros filtros ou fale com nossa equipe.</div>
+        <button onclick="limparFiltros()" style="background:var(--gold);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.88rem;">Ver todos os imóveis</button>
+      </div>`;
       return;
     }
+
     grid.innerHTML = '';
     data.forEach(p => {
       const imgsArr = p.imgs ? p.imgs.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -148,7 +200,7 @@ async function loadAndApplyCorretores() {
       if (waBtn && c.wa) {
         waBtn.onclick = (e) => {
           e.preventDefault();
-          window.open(`https://wa.me/${c.wa}?text=Olá ${c.nome}, vim pelo site da FOX Corretores!`, '_blank');
+          window.open(`https://wa.me/${c.wa}?text=Olá ${c.nome}, vim pelo site da FOX Imóveis!`, '_blank');
         };
       }
       const igBtn = card.querySelector('.biz-btn-ig');
@@ -177,9 +229,36 @@ function shareCard() {
   if (navigator.share) navigator.share({ title:'FOX Imóveis', url:window.location.href });
   else { navigator.clipboard.writeText(window.location.href); showToast('🔗 Link copiado!'); }
 }
+/* ── FILTRO DE BUSCA ── */
 function triggerSearch() {
-  openWA();
-  setTimeout(() => addMsg('🔍 Recebi sua busca! Deixa eu verificar as melhores opções...'), 400);
+  const local   = (document.getElementById('f-search-local')?.value   || '').trim().toLowerCase();
+  const tipo    = (document.getElementById('f-search-tipo')?.value    || '');
+  const preco   = (document.getElementById('f-search-preco')?.value   || '');
+  const quartos = (document.getElementById('f-search-quartos')?.value || '');
+
+  /* lê a aba ativa para filtrar por modalidade */
+  const tabAtiva = document.querySelector('.tab.active')?.textContent || '';
+  let modal = '';
+  if (tabAtiva.includes('Comprar'))     modal = 'venda';
+  else if (tabAtiva.includes('Alugar')) modal = 'aluguel';
+  else if (tabAtiva.includes('Lança')) modal = 'lancamento';
+
+  renderListings({ local, tipo, preco, quartos, modal });
+
+  /* rola suavemente para os resultados */
+  document.getElementById('listings')?.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* ── LIMPAR FILTROS ── */
+function limparFiltros() {
+  const el = document.getElementById('f-search-local');   if (el) el.value = '';
+  const et = document.getElementById('f-search-tipo');    if (et) et.value = '';
+  const ep = document.getElementById('f-search-preco');   if (ep) ep.value = '';
+  const eq = document.getElementById('f-search-quartos'); if (eq) eq.value = '';
+  /* volta para aba Comprar */
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.tab')?.classList.add('active');
+  renderListings();
 }
 function showToast(msg) {
   const t = document.getElementById('toast');

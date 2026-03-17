@@ -117,7 +117,7 @@
         <div class="biz-divider"></div>
         <div class="biz-info">
           <div class="biz-row"><span class="biz-icon">📱</span><span class="biz-txt">(84) 9 8728-9132</span></div>
-          <div class="biz-row"><span class="biz-icon">✉️</span><span class="biz-txt">ricardoalves@foxcorretores.com.br</span></div>
+          <div class="biz-row"><span class="biz-icon">✉️</span><span class="biz-txt">ricardocarvalho@foxcorretores.com.br</span></div>
           <div class="biz-row"><span class="biz-icon">📍</span><span class="biz-txt">· Natal – RN ·</span></div>
         </div>
         <div class="biz-badges">
@@ -191,29 +191,38 @@
   <div class="search-bar">
     <div class="filter-group">
       <label>Cidade / Bairro</label>
-      <input type="text" placeholder="Ex: Natal, Ponta Negra...">
+      <input id="f-search-local" type="text" placeholder="Ex: Natal, Ponta Negra...">
     </div>
     <div class="filter-group">
       <label>Tipo de Imóvel</label>
-      <select>
-        <option>Todos os tipos</option>
-        <option>Casa</option><option>Apartamento</option><option>Cobertura</option>
-        <option>Terreno</option><option>Comercial</option><option>Chácara</option>
+      <select id="f-search-tipo">
+        <option value="">Todos os tipos</option>
+        <option value="Casa">Casa</option>
+        <option value="Apartamento">Apartamento</option>
+        <option value="Cobertura">Cobertura</option>
+        <option value="Terreno">Terreno</option>
+        <option value="Comercial">Comercial</option>
+        <option value="Chácara">Chácara</option>
       </select>
     </div>
     <div class="filter-group">
       <label>Faixa de Preço</label>
-      <select>
-        <option>Qualquer valor</option>
-        <option>Até R$ 200 mil</option><option>R$ 200–500 mil</option>
-        <option>R$ 500 mil – 1 mi</option><option>Acima de R$ 1 mi</option>
+      <select id="f-search-preco">
+        <option value="">Qualquer valor</option>
+        <option value="0-200">Até R$ 200 mil</option>
+        <option value="200-500">R$ 200–500 mil</option>
+        <option value="500-1000">R$ 500 mil – 1 mi</option>
+        <option value="1000+">Acima de R$ 1 mi</option>
       </select>
     </div>
     <div class="filter-group">
       <label>Quartos</label>
-      <select>
-        <option>Qualquer</option><option>1 quarto</option>
-        <option>2 quartos</option><option>3 quartos</option><option>4+ quartos</option>
+      <select id="f-search-quartos">
+        <option value="">Qualquer</option>
+        <option value="1">1 quarto</option>
+        <option value="2">2 quartos</option>
+        <option value="3">3 quartos</option>
+        <option value="4">4+ quartos</option>
       </select>
     </div>
     <button class="search-btn" onclick="triggerSearch()">🔍 Buscar</button>
@@ -489,13 +498,8 @@
     </div>
   </div>
 </div>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
-
-<!-- SCRIPTS -->
 <script src="fox_main.js"></script>
 <script src="fox_admin.js"></script>
-
 </body>
 </html>
