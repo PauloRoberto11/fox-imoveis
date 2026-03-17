@@ -79,9 +79,11 @@ async function renderListings(filtros = {}) {
     if (!data) data = [];
 
     /* ── aplicar filtros localmente ── */
-    const { local, tipo, preco, quartos, modal } = filtros;
+    const { local, tipo, preco, quartos, modal, lancamentos } = filtros;
 
-    if (modal)   data = data.filter(p => p.modal === modal);
+    if (modal)      data = data.filter(p => p.modal === modal);
+    /* lançamentos: mostra TUDO (compra + aluguel) ordenado do mais recente */
+    if (lancamentos) data = data.sort((a, b) => (b.id || 0) - (a.id || 0));
     if (tipo)    data = data.filter(p => p.tipo?.toLowerCase() === tipo.toLowerCase());
     if (local)   data = data.filter(p =>
       p.local?.toLowerCase().includes(local) ||
@@ -113,10 +115,12 @@ async function renderListings(filtros = {}) {
     const titulo = document.querySelector('.section-title');
     const btnVerTodos = document.querySelector('.view-all');
     if (titulo) {
-      const temFiltro = local || tipo || preco || quartos || modal;
-      titulo.innerHTML = temFiltro
-        ? `Resultados <span>(${data.length} encontrado${data.length !== 1 ? 's' : ''})</span>`
-        : 'Imóveis em <span>Destaque</span>';
+      const temFiltro = local || tipo || preco || quartos || modal || lancamentos;
+      titulo.innerHTML = lancamentos
+        ? `✨ Lançamentos <span>(${data.length} imóvel${data.length !== 1 ? 'is' : ''})</span>`
+        : temFiltro
+          ? `Resultados <span>(${data.length} encontrado${data.length !== 1 ? 's' : ''})</span>`
+          : 'Imóveis em <span>Destaque</span>';
     }
     if (btnVerTodos) {
       btnVerTodos.style.display = (local || tipo || preco || quartos || modal) ? 'none' : '';
@@ -239,11 +243,12 @@ function triggerSearch() {
   /* lê a aba ativa para filtrar por modalidade */
   const tabAtiva = document.querySelector('.tab.active')?.textContent || '';
   let modal = '';
+  let lancamentos = false;
   if (tabAtiva.includes('Comprar'))     modal = 'venda';
   else if (tabAtiva.includes('Alugar')) modal = 'aluguel';
-  else if (tabAtiva.includes('Lança')) modal = 'lancamento';
+  else if (tabAtiva.includes('Lança')) { lancamentos = true; modal = ''; }
 
-  renderListings({ local, tipo, preco, quartos, modal });
+  renderListings({ local, tipo, preco, quartos, modal, lancamentos });
 
   /* rola suavemente para os resultados */
   document.getElementById('listings')?.scrollIntoView({ behavior:'smooth', block:'start' });
