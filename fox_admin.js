@@ -3,11 +3,117 @@
    Supabase + Cloudinary + login real
 ══════════════════════════════════════════ */
 
-let editId          = null;
-let pendImgs        = [];   // [{file, url}] — url = Cloudinary após upload
-let editCorretorId  = null;
+let editId           = null;
+let pendImgs         = [];
+let editCorretorId   = null;
 let pendCorretorFoto = null;
-let adminLogado     = null; // objeto do admin logado
+let adminLogado      = null;
+
+/* ══════════════════════════════════════════
+   TIMEOUT DE SESSÃO
+   Desloga automaticamente após inatividade
+══════════════════════════════════════════ */
+const SESSION_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutos
+const SESSION_WARNING_MS = 14 * 60 * 1000; // aviso 1 min antes
+let   _sessionTimer      = null;
+let   _warningTimer      = null;
+let   _warningToast      = null;
+
+/* Reinicia o contador toda vez que o usuário faz algo */
+function resetSessionTimer() {
+  if (!adminLogado) return;
+  clearTimeout(_sessionTimer);
+  clearTimeout(_warningTimer);
+
+  /* esconde aviso se ainda estiver visível */
+  if (_warningToast) {
+    _warningToast.style.display = 'none';
+    _warningToast = null;
+  }
+
+  /* aviso 1 minuto antes */
+  _warningTimer = setTimeout(() => {
+    _warningToast = _showSessionWarning();
+  }, SESSION_WARNING_MS);
+
+  /* logout automático */
+  _sessionTimer = setTimeout(() => {
+    _forceLogout();
+  }, SESSION_TIMEOUT_MS);
+}
+
+/* Mostra aviso flutuante de sessão prestes a expirar */
+function _showSessionWarning() {
+  let el = document.getElementById('session-warning');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'session-warning';
+    el.style.cssText = `
+      position:fixed; bottom:140px; left:50%; transform:translateX(-50%);
+      background:#1C1A17; color:#F0E8D0;
+      padding:14px 22px; border-radius:12px;
+      font-size:0.83rem; font-weight:600; z-index:99999;
+      box-shadow:0 8px 32px rgba(0,0,0,0.35);
+      border:1px solid rgba(201,168,76,0.35);
+      display:flex; align-items:center; gap:12px;
+      white-space:nowrap; animation:toastIn 0.3s ease;
+    `;
+    document.body.appendChild(el);
+  }
+  el.innerHTML = `
+    ⏱ Sessão expira em <strong style="color:#F0C95A">1 minuto</strong> por inatividade.
+    <button onclick="resetSessionTimer()" style="
+      background:#B8862A; color:#fff; border:none;
+      padding:5px 14px; border-radius:6px; font-size:0.78rem;
+      font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;
+      margin-left:4px;
+    ">Continuar</button>
+  `;
+  el.style.display = 'flex';
+  return el;
+}
+
+/* Desloga e exibe mensagem */
+function _forceLogout() {
+  adminLogado = null;
+  clearTimeout(_sessionTimer);
+  clearTimeout(_warningTimer);
+
+  /* esconde warning */
+  const w = document.getElementById('session-warning');
+  if (w) w.style.display = 'none';
+
+  /* volta para tela de login */
+  const mainView  = document.getElementById('admin-main-view');
+  const loginView = document.getElementById('admin-login-view');
+  if (mainView)  { mainView.style.display  = 'none'; }
+  if (loginView) { loginView.style.display = 'block'; }
+
+  /* limpa campos */
+  const u = document.getElementById('login-user');
+  const p = document.getElementById('login-pass');
+  if (u) u.value = '';
+  if (p) p.value = '';
+
+  /* fecha painel se estiver fechado — abre com mensagem */
+  const panel = document.getElementById('admin-panel');
+  if (panel && panel.classList.contains('open')) {
+    const errEl = document.getElementById('login-error');
+    if (errEl) {
+      errEl.textContent = '⏱ Sessão encerrada por inatividade. Faça login novamente.';
+      errEl.style.display = 'block';
+      errEl.style.color = '#B8862A';
+    }
+  }
+
+  showToast('🔒 Sessão encerrada por inatividade.');
+}
+
+/* Eventos que reiniciam o timer (mouse, teclado, toque, scroll) */
+function _startActivityListeners() {
+  const events = ['mousemove','mousedown','keydown','touchstart','scroll','click'];
+  events.forEach(ev => document.addEventListener(ev, resetSessionTimer, { passive:true }));
+}
 
 /* ── ABRIR / FECHAR PAINEL ── */
 function openAdminLogin(e) {
@@ -26,6 +132,7 @@ async function doLogin() {
   const senha = document.getElementById('login-pass').value.trim();
   const errEl = document.getElementById('login-error');
   errEl.style.display = 'none';
+  errEl.style.color   = '#C0392B';
 
   if (!email || !senha) { errEl.textContent = 'Preencha e-mail e senha.'; errEl.style.display = 'block'; return; }
 
@@ -33,7 +140,6 @@ async function doLogin() {
     const btnLogin = document.querySelector('#admin-login-view .btn-form');
     if (btnLogin) { btnLogin.textContent = 'Verificando...'; btnLogin.disabled = true; }
 
-    /* busca admin pelo email na tabela admins */
     const r = await fetch(
       `${SB_URL}/rest/v1/admins?email=eq.${encodeURIComponent(email)}&select=*`,
       { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
@@ -53,6 +159,10 @@ async function doLogin() {
     const mv = document.getElementById('admin-main-view');
     mv.style.display = 'flex';
     renderAdminImoveis();
+
+    /* ── inicia timeout de sessão após login ── */
+    _startActivityListeners();
+    resetSessionTimer();
 
   } catch(e) {
     errEl.textContent = 'Erro de conexão. Tente novamente.';
